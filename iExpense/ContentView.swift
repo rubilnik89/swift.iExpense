@@ -14,18 +14,22 @@ struct ContentView: View {
      var body: some View {
         NavigationView {
             List {
-                Section("Personal") {
-                    ForEach(expenses.items.filter({$0.type == "Personal"})) { item in
-                        ExpenseCell(item: item)
+                if expenses.items.filter({$0.type == "Personal"}).count > 0 {
+                    Section("Personal") {
+                        ForEach(expenses.items.filter({$0.type == "Personal"})) { item in
+                            ExpenseCell(item: item)
+                        }
+                        .onDelete(perform: removePersonalItems)
                     }
-                    .onDelete(perform: removePersonalItems)
                 }
                 
-                Section("Business") {
-                    ForEach(expenses.items.filter({$0.type == "Business"})) { item in
-                        ExpenseCell(item: item)
+                if expenses.items.filter({$0.type == "Business"}).count > 0 {
+                    Section("Business") {
+                        ForEach(expenses.items.filter({$0.type == "Business"})) { item in
+                            ExpenseCell(item: item)
+                        }
+                        .onDelete(perform: removeBusinessItems)
                     }
-                    .onDelete(perform: removeBusinessItems)
                 }
             }
             .navigationTitle("iExpense")
@@ -43,15 +47,16 @@ struct ContentView: View {
     }
     
     func removeBusinessItems(at offsets: IndexSet) {
-        for i in offsets.makeIterator() {
-            let theItem = expenses.items.filter({$0.type == "Business"})[i]
-            expenses.items.removeAll(where: {$0.id == theItem.id})
-        }
+        remove(type: "Business", offsets: offsets)
     }
     
     func removePersonalItems(at offsets: IndexSet) {
+        remove(type: "Personal", offsets: offsets)
+    }
+    
+    func remove(type: String, offsets: IndexSet) {
         for i in offsets.makeIterator() {
-            let theItem = expenses.items.filter({$0.type == "Personal"})[i]
+            let theItem = expenses.items.filter({$0.type == type})[i]
             expenses.items.removeAll(where: {$0.id == theItem.id})
         }
     }
